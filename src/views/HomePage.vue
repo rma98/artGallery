@@ -55,32 +55,32 @@ export default {
         const artworks = ref([
             { id: 1, title: 'Obra 1', image: art01 },
             { id: 2, title: 'Obra 2', image: art02 },
-            { id: 3, title: 'Obra 3', image: art03 },
-            { id: 4, title: 'Obra 4', image: art04 },
-            { id: 5, title: 'Obra 5', image: art05 },
-            { id: 6, title: 'Obra 6', image: art06 },
-            { id: 7, title: 'Obra 7', image: art07 },
-            { id: 8, title: 'Obra 8', image: art08 },
-            { id: 9, title: 'Obra 9', image: art09 },
-            { id: 10, title: 'Obra 10', image: art10 },
-            { id: 11, title: 'Obra 11', image: art11 },
-            { id: 12, title: 'Obra 12', image: art12 },
-            { id: 13, title: 'Obra 13', image: art13 },
-            { id: 14, title: 'Obra 14', image: art14 },
-            { id: 15, title: 'Obra 15', image: art15 },
-            { id: 16, title: 'Obra 16', image: art16 },
-            { id: 17, title: 'Obra 17', image: art17 },
-            { id: 18, title: 'Obra 18', image: art18 },
-            { id: 19, title: 'Obra 19', image: art19 },
-            { id: 20, title: 'Obra 20', image: art20 },
-            { id: 20, title: 'Obra 20', image: art21 },
-            { id: 20, title: 'Obra 20', image: art22 },
-            { id: 20, title: 'Obra 20', image: art23 },
-            { id: 20, title: 'Obra 20', image: art24 },
+            { id: 3, title: 'Obra 3', image: art04 },
+            { id: 4, title: 'Obra 4', image: art05 },
+            { id: 5, title: 'Obra 5', image: art06 },
+            { id: 6, title: 'Obra 6', image: art07 },
+            { id: 7, title: 'Obra 7', image: art08 },
+            { id: 8, title: 'Obra 8', image: art09 },
+            { id: 9, title: 'Obra 09', image: art10 },
+            { id: 10, title: 'Obra 10', image: art11 },
+            { id: 11, title: 'Obra 11', image: art12 },
+            { id: 12, title: 'Obra 12', image: art14 },
+            { id: 13, title: 'Obra 13', image: art17 },
+            { id: 14, title: 'Obra 14', image: art18 },
+            { id: 15, title: 'Obra 15', image: art19 },
+            { id: 16, title: 'Obra 16', image: art20 },
+            { id: 17, title: 'Obra 17', image: art21 },
+            { id: 18, title: 'Obra 18', image: art22 },
+            { id: 19, title: 'Obra 19', image: art24 },
             { id: 20, title: 'Obra 20', image: art25 },
-            { id: 20, title: 'Obra 20', image: art26 },
-            { id: 20, title: 'Obra 20', image: art27 },
-            { id: 20, title: 'Obra 20', image: art28 },
+            { id: 20, title: 'Obra 21', image: art26 },
+            { id: 20, title: 'Obra 22', image: art27 },
+            { id: 20, title: 'Obra 23', image: art28 },
+            { id: 20, title: 'Obra 24', image: art16 },
+            { id: 20, title: 'Obra 25', image: art13 },
+            { id: 20, title: 'Obra 26', image: art15 },
+            { id: 20, title: 'Obra 27', image: art03 },
+            { id: 20, title: 'Obra 28', image: art23 },
         ]);
         return { artworks };
     }
@@ -163,9 +163,10 @@ h1 {
 
 .art-card img {
     width: 100%;
-    height: 200px;
-    object-fit: contain;
-    background-color: #f4f4f4;
+    height: auto;
+    object-fit: cover;
+    max-height: 300px;
+    
 }
 
 .art-card h2 {
