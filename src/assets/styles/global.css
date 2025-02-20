@@ -1,0 +1,109 @@
+:root {
+    /* Definição de unidade base (1rem = 10px) */
+    font-size: 62.5%;
+
+    /* Paleta de Cores */
+    --primary-color: #7B3F61;
+    /* Vinho Rosado */
+    --secondary-color: #F5F1E3;
+    /* Bege Claro */
+    --dark-color: #2D2D2D;
+    /* Cinza Escuro */
+
+    /* Tipografia */
+    --font-primary: 'Poppins', sans-serif;
+    --font-size-base: 1.6rem;
+    /* 16px padrão */
+    --line-height-base: 1.6;
+}
+
+/* Reset global para padronização */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    border: none;
+    outline: none;
+    line-height: var(--line-height-base);
+}
+
+/* Estilos Globais */
+body {
+    font-family: var(--font-primary);
+    font-size: var(--font-size-base);
+    background-color: var(--secondary-color);
+    color: var(--dark-color);
+    transition: background 0.3s ease-in-out;
+}
+
+/* Container Principal */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* Links */
+a {
+    text-decoration: none;
+    color: var(--primary-color);
+    transition: 0.3s;
+}
+
+a:hover {
+    color: var(--dark-color);
+}
+
+/* Botões */
+button {
+    background-color: var(--primary-color);
+    color: white;
+    font-size: 1.6rem;
+    padding: 1rem 2rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    background-color: var(--dark-color);
+}
+
+/* Cabeçalhos */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+/* Imagens */
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* ======== Melhorando a rolagem em dispositivos ======== */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: #ddd;
+}
+
+/* Layout Responsivo */
+@media (max-width: 768px) {
+    :root {
+        font-size: 58%;
+    }
+}
