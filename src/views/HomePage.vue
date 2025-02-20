@@ -158,11 +158,8 @@ h1 {
 }
 
 .art-card {
-    background: white;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
-    transition: transform 0.3s;
+    position: relative;
+    cursor: pointer;
 }
 
 .art-card:hover {
@@ -174,6 +171,21 @@ h1 {
     height: auto;
     object-fit: cover;
     max-height: 300px;
+    transition: transform 0.3s;
+}
+
+/* Ao passar o mouse, mostramos a imagem original sem cortes */
+.art-card:hover img {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%) scale(1.2);
+    /* Aumenta a imagem */
+    z-index: 10;
+    width: auto;
+    height: auto;
+    background: white;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
 }
 
 .art-card h2 {
