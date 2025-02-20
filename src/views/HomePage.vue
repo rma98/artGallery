@@ -3,13 +3,13 @@
         <header>
             <h1>Galeria de Artes</h1>
             <div class="search-box">
-                <input type="text" placeholder="Pesquisar obras..." />
+                <input type="text" v-model="searchQuery" placeholder="Pesquisar obras..." />
                 <IconSearch class="icon" />
             </div>
         </header>
 
         <section class="gallery">
-            <div v-for="art in artworks" :key="art.id" class="art-card">
+            <div v-for="art in filteredArtworks" :key="art.id" class="art-card">
                 <img :src="art.image" :alt="art.title" />
                 <h2>{{ art.title }}</h2>
             </div>
@@ -18,7 +18,7 @@
 </template>
 
 <script>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { IconSearch } from '@tabler/icons-vue'; // Ícone de busca moderno
 import art01 from '../assets/images/art01.jpg';
 import art02 from '../assets/images/art02.jpg';
@@ -52,15 +52,16 @@ import art28 from '../assets/images/art28.jpg';
 export default {
     components: { IconSearch },
     setup() {
+        const searchQuery = ref('');
         const artworks = ref([
-            { id: 1, title: 'Obra 1', image: art01 },
-            { id: 2, title: 'Obra 2', image: art02 },
-            { id: 3, title: 'Obra 3', image: art04 },
-            { id: 4, title: 'Obra 4', image: art05 },
-            { id: 5, title: 'Obra 5', image: art06 },
-            { id: 6, title: 'Obra 6', image: art07 },
-            { id: 7, title: 'Obra 7', image: art08 },
-            { id: 8, title: 'Obra 8', image: art09 },
+            { id: 1, title: 'Obra 01', image: art01 },
+            { id: 2, title: 'Obra 02', image: art02 },
+            { id: 3, title: 'Obra 03', image: art04 },
+            { id: 4, title: 'Obra 04', image: art05 },
+            { id: 5, title: 'Obra 05', image: art06 },
+            { id: 6, title: 'Obra 06', image: art07 },
+            { id: 7, title: 'Obra 07', image: art08 },
+            { id: 8, title: 'Obra 08', image: art09 },
             { id: 9, title: 'Obra 09', image: art10 },
             { id: 10, title: 'Obra 10', image: art11 },
             { id: 11, title: 'Obra 11', image: art12 },
@@ -73,16 +74,23 @@ export default {
             { id: 18, title: 'Obra 18', image: art22 },
             { id: 19, title: 'Obra 19', image: art24 },
             { id: 20, title: 'Obra 20', image: art25 },
-            { id: 20, title: 'Obra 21', image: art26 },
-            { id: 20, title: 'Obra 22', image: art27 },
-            { id: 20, title: 'Obra 23', image: art28 },
-            { id: 20, title: 'Obra 24', image: art16 },
-            { id: 20, title: 'Obra 25', image: art13 },
-            { id: 20, title: 'Obra 26', image: art15 },
-            { id: 20, title: 'Obra 27', image: art03 },
-            { id: 20, title: 'Obra 28', image: art23 },
+            { id: 21, title: 'Obra 21', image: art26 },
+            { id: 22, title: 'Obra 22', image: art27 },
+            { id: 23, title: 'Obra 23', image: art28 },
+            { id: 24, title: 'Obra 24', image: art16 },
+            { id: 25, title: 'Obra 25', image: art13 },
+            { id: 26, title: 'Obra 26', image: art15 },
+            { id: 27, title: 'Obra 27', image: art03 },
+            { id: 28, title: 'Obra 28', image: art23 },
         ]);
-        return { artworks };
+        // 🔹 Criando um filtro computado para filtrar as obras com base no `searchQuery`
+        const filteredArtworks = computed(() => {
+            return artworks.value.filter(art =>
+                art.title.toLowerCase().includes(searchQuery.value.toLowerCase())
+            );
+        });
+
+        return { searchQuery, filteredArtworks };
     }
 };
 </script>
@@ -166,13 +174,17 @@ h1 {
     height: auto;
     object-fit: cover;
     max-height: 300px;
-    
 }
 
 .art-card h2 {
     font-size: 1.8rem;
     padding: 1rem;
     color: var(--dark-color);
+}
+
+.gallery:has(.art-card:only-child) {
+    display: flex;
+    justify-content: center;
 }
 
 /***** Responsividade *****/
