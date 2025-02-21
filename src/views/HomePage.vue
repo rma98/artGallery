@@ -3,6 +3,9 @@
         <header>
             <h1>Galeria de Artes</h1>
 
+            <!-- Botão para acessar favoritos -->
+            <router-link to="/favoritos" class="favorites-link">📌 Ver Favoritos</router-link>
+
             <!-- Filtros -->
             <div class="filters">
                 <input type="text" v-model="searchQuery" placeholder="Pesquisar obras..." @input="resetPagination" />
@@ -16,9 +19,14 @@
         </header>
 
         <section class="gallery">
-            <div v-for="art in paginatedArtworks" :key="art.id" class="art-card fade-in" @click="openModal(art.image)">
-                <img :src="art.image" :alt="art.title" />
-                <h2>{{ art.title }}</h2>
+            <div v-for="art in paginatedArtworks" :key="art.id" class="art-card fade-in">
+                <img :src="art.image" :alt="art.title" @click="openModal(art.image)" />
+                <div class="card-header">
+                    <h2>{{ art.title }}</h2>
+                    <button @click="toggleFavorite(art)">
+                        {{ isFavorite(art.id) ? '★' : '☆' }}
+                    </button>
+                </div>
             </div>
         </section>
 
@@ -37,7 +45,7 @@
 </template>
 
 <script>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import artworks from '../data/artworks.js';
 
 export default {
@@ -46,6 +54,14 @@ export default {
         const selectedCategory = ref('');
         const itemsPerPage = 8;
         const currentPage = ref(1);
+        const favoriteArtworks = ref([]);
+
+        // 🔹 Carregar favoritos ao iniciar
+        const loadFavorites = () => {
+            favoriteArtworks.value = JSON.parse(localStorage.getItem('favorites')) || [];
+        };
+
+        onMounted(loadFavorites);
 
         const uniqueCategories = computed(() => {
             return [...new Set(artworks.map(art => art.category))];
@@ -91,6 +107,29 @@ export default {
             modalVisible.value = false;
         };
 
+        // 🔹 Alternar entre adicionar/remover favoritos
+        const toggleFavorite = (art) => {
+            const index = favoriteArtworks.value.findIndex(fav => fav.id === art.id);
+
+            if (index !== -1) {
+                // Se já está nos favoritos, remover
+                favoriteArtworks.value.splice(index, 1);
+            } else {
+                // Se não está, adicionar
+                favoriteArtworks.value.push({
+                    id: art.id,
+                    title: art.title,
+                    image: art.image
+                });
+            }
+
+            localStorage.setItem('favorites', JSON.stringify(favoriteArtworks.value));
+        };
+
+        const isFavorite = (id) => {
+            return favoriteArtworks.value.some(fav => fav.id === id);
+        };
+
         return {
             searchQuery,
             selectedCategory,
@@ -105,6 +144,8 @@ export default {
             prevPage,
             nextPage,
             resetPagination,
+            toggleFavorite,
+            isFavorite
         };
     }
 };
@@ -193,6 +234,9 @@ select {
 }
 
 .art-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     background: white;
     border-radius: 10px;
     overflow: hidden;
@@ -200,22 +244,53 @@ select {
     transition: transform 0.3s;
     position: relative;
     cursor: pointer;
+    padding: 1rem;
 }
 
-.art-card:hover {
-    transform: scale(1.05);
-}
-
-.art-card img {
+/* Container para título e botão */
+.art-card .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     width: 100%;
-    height: auto;
-    object-fit: cover;
-    max-height: 300px;
-    transition: transform 0.3s;
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.8);
+    /* Fundo para contraste */
+    border-top: 1px solid #ddd;
+    /* Separação sutil */
 }
 
-.art-card:hover img {
-    transform: scale(1.1);
+/* Estilização do título */
+.art-card h2 {
+    font-size: 1.2rem;
+    margin: 0;
+    flex: 1;
+    /* Ocupa o máximo de espaço possível */
+    padding-right: 0.5rem;
+}
+
+/* Botão sempre visível */
+.art-card button {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #555;
+    padding: 0.3rem 0.5rem;
+    transition: color 0.3s;
+}
+
+/* Melhor contraste no hover */
+.art-card button:hover {
+    color: gold;
+}
+
+.favorites-link {
+    display: block;
+    text-align: right;
+    font-size: 1.2em;
+    margin-bottom: 10px;
+    text-decoration: none;
 }
 
 /* Estilização do loader */
@@ -237,6 +312,8 @@ select {
         opacity: 1;
     }
 }
+
+
 
 .pagination-controls {
     display: flex;
@@ -287,6 +364,22 @@ select {
 
     .search-box input {
         width: 100%;
+    }
+}
+
+/* Melhorando a responsividade */
+@media (max-width: 600px) {
+    .art-card .card-header {
+        flex-direction: row;
+        padding: 0.5rem 0.2rem;
+    }
+
+    .art-card h2 {
+        font-size: 1rem;
+    }
+
+    .art-card button {
+        font-size: 1.3rem;
     }
 }
 </style>
