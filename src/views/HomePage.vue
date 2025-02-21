@@ -3,17 +3,24 @@
         <header>
             <h1>Galeria de Artes</h1>
             <div class="search-box">
-                <input type="text" v-model="searchQuery" placeholder="Pesquisar obras..." />
+                <input type="text" v-model="searchQuery" placeholder="Pesquisar obras..." @input="resetVisibleCount" />
                 <IconSearch class="icon" />
             </div>
         </header>
 
         <section class="gallery">
-            <div v-for="art in filteredArtworks" :key="art.id" class="art-card" @click="openModal(art.image)">
+            <div v-for="(art, index) in visibleArtworks" :key="art.id" class="art-card fade-in"
+                @click="openModal(art.image)">
                 <img :src="art.image" :alt="art.title" />
                 <h2>{{ art.title }}</h2>
             </div>
         </section>
+
+        <!-- Loader visível quando mais imagens estão sendo carregadas -->
+        <div ref="loadMoreTrigger" class="loading" v-if="hasMore">
+            <p>Carregando mais obras...</p>
+        </div>
+
         <!-- Modal para exibição da imagem em tela cheia -->
         <div v-if="modalVisible" class="modal" @click="closeModal">
             <span class="close-btn" @click="closeModal">&times;</span>
@@ -23,7 +30,7 @@
 </template>
 
 <script>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { IconSearch } from '@tabler/icons-vue'; // Ícone de busca moderno
 import artworks from '../data/artworks.js';
 
@@ -31,12 +38,44 @@ export default {
     components: { IconSearch },
     setup() {
         const searchQuery = ref('');
+        const itemsPerPage = 4;
+        const visibleCount = ref(itemsPerPage);
+        const loadMoreTrigger = ref(null);
+        const observer = ref(null);
+        const isLoading = ref(false);
 
         // Filtro de busca
         const filteredArtworks = computed(() => {
             return artworks.filter(art =>
                 art.title.toLowerCase().includes(searchQuery.value.toLowerCase())
             );
+        });
+
+        const visibleArtworks = computed(() => filteredArtworks.value.slice(0, visibleCount.value));
+
+        const hasMore = computed(() => visibleCount.value < filteredArtworks.value.length);
+
+        const loadMore = () => {
+            if (hasMore.value && !isLoading.value) {
+                isLoading.value = true;
+                setTimeout(() => { // ⏳ Adiciona um delay para um efeito mais suave
+                    visibleCount.value += itemsPerPage;
+                    isLoading.value = false;
+                }, 800); // Tempo de delay (800ms)
+            }
+        };
+
+        // Lazy Loading usando Intersection Observer
+        onMounted(() => {
+            observer.value = new IntersectionObserver((entries) => {
+                if (entries[0].isIntersecting) {
+                    loadMore();
+                }
+            });
+
+            if (loadMoreTrigger.value) {
+                observer.value.observe(loadMoreTrigger.value);
+            }
         });
 
         // Modal de exibição de imagem
@@ -55,10 +94,13 @@ export default {
         return {
             searchQuery,
             filteredArtworks,
+            visibleArtworks,
             modalVisible,
             modalImage,
             openModal,
             closeModal,
+            hasMore,
+            loadMoreTrigger,
         };
     },
 };
@@ -155,6 +197,26 @@ h1 {
 
 .art-card:hover img {
     transform: scale(1.1);
+}
+
+/* Estilização do loader */
+.loading {
+    text-align: center;
+    padding: 20px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #666;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 /***** Estilização do Modal *****/
