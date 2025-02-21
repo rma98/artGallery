@@ -5,8 +5,8 @@
 
             <!-- Filtros -->
             <div class="filters">
-                <input type="text" v-model="searchQuery" placeholder="Pesquisar obras..." @input="resetVisibleCount" />
-                <select v-model="selectedCategory" @change="resetVisibleCount">
+                <input type="text" v-model="searchQuery" placeholder="Pesquisar obras..." @input="resetPagination" />
+                <select v-model="selectedCategory" @change="resetPagination">
                     <option value="">Todas as Categorias</option>
                     <option v-for="category in uniqueCategories" :key="category" :value="category">
                         {{ category }}
@@ -16,15 +16,17 @@
         </header>
 
         <section class="gallery">
-            <div v-for="(art, index) in visibleArtworks" :key="art.id" class="art-card fade-in"
-                @click="openModal(art.image)">
+            <div v-for="art in paginatedArtworks" :key="art.id" class="art-card fade-in" @click="openModal(art.image)">
                 <img :src="art.image" :alt="art.title" />
                 <h2>{{ art.title }}</h2>
             </div>
         </section>
 
-        <div ref="loadMoreTrigger" class="loading" v-if="hasMore">
-            <p>Carregando mais obras...</p>
+        <!-- Paginação -->
+        <div class="pagination-controls">
+            <button @click="prevPage" :disabled="currentPage === 1">Anterior</button>
+            <span>Página {{ currentPage }} de {{ totalPages }}</span>
+            <button @click="nextPage" :disabled="currentPage === totalPages">Próxima</button>
         </div>
 
         <div v-if="modalVisible" class="modal" @click="closeModal">
@@ -35,27 +37,20 @@
 </template>
 
 <script>
-import { ref, computed, onMounted, watch } from 'vue';
-import { IconSearch } from '@tabler/icons-vue'; // Ícone de busca moderno
+import { ref, computed, watch } from 'vue';
 import artworks from '../data/artworks.js';
 
 export default {
-    components: { IconSearch },
     setup() {
         const searchQuery = ref('');
         const selectedCategory = ref('');
-        const itemsPerPage = 4;
-        const visibleCount = ref(itemsPerPage);
-        const loadMoreTrigger = ref(null);
-        const observer = ref(null);
-        const isLoading = ref(false);
+        const itemsPerPage = 8;
+        const currentPage = ref(1);
 
-        // Coletando categorias únicas
         const uniqueCategories = computed(() => {
             return [...new Set(artworks.map(art => art.category))];
         });
 
-        // Filtrando por busca e categoria
         const filteredArtworks = computed(() => {
             return artworks.filter(art =>
                 art.title.toLowerCase().includes(searchQuery.value.toLowerCase()) &&
@@ -63,52 +58,26 @@ export default {
             );
         });
 
-        const visibleArtworks = computed(() => filteredArtworks.value.slice(0, visibleCount.value));
+        const totalPages = computed(() => Math.ceil(filteredArtworks.value.length / itemsPerPage));
 
-        const hasMore = computed(() => visibleCount.value < filteredArtworks.value.length);
-
-        const loadMore = () => {
-            if (hasMore.value && !isLoading.value) {
-                isLoading.value = true;
-                setTimeout(() => {
-                    visibleCount.value += itemsPerPage;
-                    isLoading.value = false;
-                }, 800);
-            }
-        };
-
-        const resetVisibleCount = () => {
-            visibleCount.value = itemsPerPage;
-
-            // Força uma reavaliação do IntersectionObserver
-            setTimeout(() => {
-                if (loadMoreTrigger.value) {
-                    observer.value.observe(loadMoreTrigger.value);
-                }
-            }, 300);
-        };
-
-        onMounted(() => {
-            observer.value = new IntersectionObserver((entries) => {
-                if (entries[0].isIntersecting) {
-                    loadMore();
-                }
-            });
-
-            // Aguarda um pequeno tempo para garantir que o DOM esteja pronto
-            setTimeout(() => {
-                if (loadMoreTrigger.value) {
-                    observer.value.observe(loadMoreTrigger.value);
-                }
-                // Força o primeiro carregamento
-                loadMore();
-            }, 300);
+        const paginatedArtworks = computed(() => {
+            const start = (currentPage.value - 1) * itemsPerPage;
+            return filteredArtworks.value.slice(start, start + itemsPerPage);
         });
 
-        // 🛠️ Observa mudanças no filtro e reinicia a contagem visível
-        watch([searchQuery, selectedCategory], () => {
-            resetVisibleCount();
-        });
+        const prevPage = () => {
+            if (currentPage.value > 1) currentPage.value--;
+        };
+
+        const nextPage = () => {
+            if (currentPage.value < totalPages.value) currentPage.value++;
+        };
+
+        const resetPagination = () => {
+            currentPage.value = 1;
+        };
+
+        watch([searchQuery, selectedCategory], resetPagination);
 
         const modalVisible = ref(false);
         const modalImage = ref("");
@@ -126,16 +95,16 @@ export default {
             searchQuery,
             selectedCategory,
             uniqueCategories,
-            filteredArtworks,
-            visibleArtworks,
+            paginatedArtworks,
             modalVisible,
             modalImage,
             openModal,
             closeModal,
-            hasMore,
-            loadMoreTrigger,
-            isLoading,
-            resetVisibleCount,
+            currentPage,
+            totalPages,
+            prevPage,
+            nextPage,
+            resetPagination,
         };
     }
 };
@@ -267,6 +236,19 @@ select {
     to {
         opacity: 1;
     }
+}
+
+.pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+}
+
+.pagination-controls button {
+    padding: 10px;
+    margin: 0 10px;
+    cursor: pointer;
 }
 
 /***** Estilização do Modal *****/
