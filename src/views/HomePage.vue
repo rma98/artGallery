@@ -26,6 +26,9 @@
                     <button @click="toggleFavorite(art)">
                         {{ isFavorite(art.id) ? '★' : '☆' }}
                     </button>
+                    <button @click="shareArtwork(art)">
+                        📤
+                    </button>
                 </div>
             </div>
         </section>
@@ -55,6 +58,22 @@ export default {
         const itemsPerPage = 8;
         const currentPage = ref(1);
         const favoriteArtworks = ref([]);
+
+        const shareArtwork = (art) => {
+            if (navigator.share) {
+                navigator.share({
+                    title: art.title,
+                    text: "Confira esta arte incrível!",
+                    url: art.image // Compartilha diretamente o link da imagem
+                }).then(() => console.log("Compartilhado com sucesso"))
+                    .catch((error) => console.log("Erro ao compartilhar", error));
+            } else {
+                // Caso o navegador não suporte, copiamos o link para a área de transferência
+                navigator.clipboard.writeText(art.image).then(() => {
+                    alert("Link copiado! Agora você pode colar e compartilhar.");
+                });
+            }
+        };
 
         // 🔹 Carregar favoritos ao iniciar
         const loadFavorites = () => {
@@ -131,6 +150,7 @@ export default {
         };
 
         return {
+            shareArtwork,
             searchQuery,
             selectedCategory,
             uniqueCategories,
@@ -267,6 +287,20 @@ select {
     flex: 1;
     /* Ocupa o máximo de espaço possível */
     padding-right: 0.5rem;
+}
+
+.art-card .card-header button {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #555;
+    padding: 0.3rem 0.5rem;
+    transition: color 0.3s;
+}
+
+.art-card .card-header button:hover {
+    color: dodgerblue;
 }
 
 /* Botão sempre visível */
