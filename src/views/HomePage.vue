@@ -9,11 +9,16 @@
         </header>
 
         <section class="gallery">
-            <div v-for="art in filteredArtworks" :key="art.id" class="art-card">
+            <div v-for="art in filteredArtworks" :key="art.id" class="art-card" @click="openModal(art.image)">
                 <img :src="art.image" :alt="art.title" />
                 <h2>{{ art.title }}</h2>
             </div>
         </section>
+        <!-- Modal para exibição da imagem em tela cheia -->
+        <div v-if="modalVisible" class="modal" @click="closeModal">
+            <span class="close-btn" @click="closeModal">&times;</span>
+            <img :src="modalImage" class="modal-img" />
+        </div>
     </div>
 </template>
 
@@ -83,15 +88,35 @@ export default {
             { id: 27, title: 'Obra 27', image: art03 },
             { id: 28, title: 'Obra 28', image: art23 },
         ]);
-        // 🔹 Criando um filtro computado para filtrar as obras com base no `searchQuery`
+        // Filtro de busca
         const filteredArtworks = computed(() => {
             return artworks.value.filter(art =>
                 art.title.toLowerCase().includes(searchQuery.value.toLowerCase())
             );
         });
 
-        return { searchQuery, filteredArtworks };
-    }
+        // Modal de exibição de imagem
+        const modalVisible = ref(false);
+        const modalImage = ref("");
+
+        const openModal = (image) => {
+            modalImage.value = image;
+            modalVisible.value = true;
+        };
+
+        const closeModal = () => {
+            modalVisible.value = false;
+        };
+
+        return {
+            searchQuery,
+            filteredArtworks,
+            modalVisible,
+            modalImage,
+            openModal,
+            closeModal,
+        };
+    },
 };
 </script>
 
@@ -149,7 +174,7 @@ h1 {
     color: var(--dark-color);
 }
 
-/***** Galeria de Imagens *****/
+/***** Estilização da Galeria *****/
 .gallery {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -157,7 +182,17 @@ h1 {
     margin-top: 2rem;
 }
 
+.gallery:has(.art-card:only-child) {
+    display: flex;
+    justify-content: center;
+}
+
 .art-card {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s;
     position: relative;
     cursor: pointer;
 }
@@ -174,29 +209,35 @@ h1 {
     transition: transform 0.3s;
 }
 
-/* Ao passar o mouse, mostramos a imagem original sem cortes */
 .art-card:hover img {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%) scale(1.2);
-    /* Aumenta a imagem */
-    z-index: 10;
-    width: auto;
-    height: auto;
-    background: white;
-    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
 }
 
-.art-card h2 {
-    font-size: 1.8rem;
-    padding: 1rem;
-    color: var(--dark-color);
-}
-
-.gallery:has(.art-card:only-child) {
+/***** Estilização do Modal *****/
+.modal {
     display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
     justify-content: center;
+    align-items: center;
+}
+
+.modal-img {
+    max-width: 90%;
+    max-height: 90%;
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 30px;
+    cursor: pointer;
+    color: white;
 }
 
 /***** Responsividade *****/
