@@ -95,11 +95,14 @@ export default {
                 }
             });
 
-            watch(loadMoreTrigger, (newTrigger) => {
-                if (newTrigger) {
-                    observer.value.observe(newTrigger);
+            // Aguarda um pequeno tempo para garantir que o DOM esteja pronto
+            setTimeout(() => {
+                if (loadMoreTrigger.value) {
+                    observer.value.observe(loadMoreTrigger.value);
                 }
-            });
+                // Força o primeiro carregamento
+                loadMore();
+            }, 300);
         });
 
         // 🛠️ Observa mudanças no filtro e reinicia a contagem visível
