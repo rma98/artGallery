@@ -2,9 +2,16 @@
     <div class="homepage">
         <header>
             <h1>Galeria de Artes</h1>
-            <div class="search-box">
+
+            <!-- Filtros -->
+            <div class="filters">
                 <input type="text" v-model="searchQuery" placeholder="Pesquisar obras..." @input="resetVisibleCount" />
-                <IconSearch class="icon" />
+                <select v-model="selectedCategory" @change="resetVisibleCount">
+                    <option value="">Todas as Categorias</option>
+                    <option v-for="category in uniqueCategories" :key="category" :value="category">
+                        {{ category }}
+                    </option>
+                </select>
             </div>
         </header>
 
@@ -16,12 +23,10 @@
             </div>
         </section>
 
-        <!-- Loader visível quando mais imagens estão sendo carregadas -->
         <div ref="loadMoreTrigger" class="loading" v-if="hasMore">
             <p>Carregando mais obras...</p>
         </div>
 
-        <!-- Modal para exibição da imagem em tela cheia -->
         <div v-if="modalVisible" class="modal" @click="closeModal">
             <span class="close-btn" @click="closeModal">&times;</span>
             <img :src="modalImage" class="modal-img" />
@@ -30,7 +35,7 @@
 </template>
 
 <script>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { IconSearch } from '@tabler/icons-vue'; // Ícone de busca moderno
 import artworks from '../data/artworks.js';
 
@@ -38,16 +43,23 @@ export default {
     components: { IconSearch },
     setup() {
         const searchQuery = ref('');
+        const selectedCategory = ref('');
         const itemsPerPage = 4;
         const visibleCount = ref(itemsPerPage);
         const loadMoreTrigger = ref(null);
         const observer = ref(null);
         const isLoading = ref(false);
 
-        // Filtro de busca
+        // Coletando categorias únicas
+        const uniqueCategories = computed(() => {
+            return [...new Set(artworks.map(art => art.category))];
+        });
+
+        // Filtrando por busca e categoria
         const filteredArtworks = computed(() => {
             return artworks.filter(art =>
-                art.title.toLowerCase().includes(searchQuery.value.toLowerCase())
+                art.title.toLowerCase().includes(searchQuery.value.toLowerCase()) &&
+                (selectedCategory.value === '' || art.category === selectedCategory.value)
             );
         });
 
@@ -58,14 +70,24 @@ export default {
         const loadMore = () => {
             if (hasMore.value && !isLoading.value) {
                 isLoading.value = true;
-                setTimeout(() => { // ⏳ Adiciona um delay para um efeito mais suave
+                setTimeout(() => {
                     visibleCount.value += itemsPerPage;
                     isLoading.value = false;
-                }, 800); // Tempo de delay (800ms)
+                }, 800);
             }
         };
 
-        // Lazy Loading usando Intersection Observer
+        const resetVisibleCount = () => {
+            visibleCount.value = itemsPerPage;
+
+            // Força uma reavaliação do IntersectionObserver
+            setTimeout(() => {
+                if (loadMoreTrigger.value) {
+                    observer.value.observe(loadMoreTrigger.value);
+                }
+            }, 300);
+        };
+
         onMounted(() => {
             observer.value = new IntersectionObserver((entries) => {
                 if (entries[0].isIntersecting) {
@@ -73,12 +95,18 @@ export default {
                 }
             });
 
-            if (loadMoreTrigger.value) {
-                observer.value.observe(loadMoreTrigger.value);
-            }
+            watch(loadMoreTrigger, (newTrigger) => {
+                if (newTrigger) {
+                    observer.value.observe(newTrigger);
+                }
+            });
         });
 
-        // Modal de exibição de imagem
+        // 🛠️ Observa mudanças no filtro e reinicia a contagem visível
+        watch([searchQuery, selectedCategory], () => {
+            resetVisibleCount();
+        });
+
         const modalVisible = ref(false);
         const modalImage = ref("");
 
@@ -93,6 +121,8 @@ export default {
 
         return {
             searchQuery,
+            selectedCategory,
+            uniqueCategories,
             filteredArtworks,
             visibleArtworks,
             modalVisible,
@@ -101,8 +131,10 @@ export default {
             closeModal,
             hasMore,
             loadMoreTrigger,
+            isLoading,
+            resetVisibleCount,
         };
-    },
+    }
 };
 </script>
 
@@ -146,6 +178,21 @@ h1 {
     padding: 0.5rem;
     outline: none;
     width: 200px;
+}
+
+/* Estilos para os filtros */
+.filters {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+select {
+    padding: 5px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
 }
 
 .icon {
