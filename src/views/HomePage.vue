@@ -6,6 +6,9 @@
             <!-- Botão para acessar favoritos -->
             <router-link to="/favoritos" class="favorites-link">📌 Ver Favoritos</router-link>
 
+            <!-- Botão para abrir o modal de contato -->
+            <button @click="openContactModal" class="contact-btn">📩 Contato</button>
+
             <!-- Filtros -->
             <div class="filters">
                 <input type="text" v-model="searchQuery" placeholder="Pesquisar obras..." @input="resetPagination" />
@@ -44,38 +47,43 @@
             <span class="close-btn" @click="closeModal">&times;</span>
             <img :src="modalImage" class="modal-img" />
         </div>
+
+        <!-- Modal de Contato -->
+        <ModalContato :show="showContactModal" @close="closeContactModal" />
     </div>
 </template>
 
 <script>
 import { ref, computed, watch, onMounted } from 'vue';
 import artworks from '../data/artworks.js';
+import ModalContato from '../components/ModalContato.vue'; // Importação do modal
 
 export default {
+    components: { ModalContato }, // Registro do componente
+
     setup() {
         const searchQuery = ref('');
         const selectedCategory = ref('');
         const itemsPerPage = 8;
         const currentPage = ref(1);
         const favoriteArtworks = ref([]);
+        const showContactModal = ref(false); // Estado do modal de contato
 
         const shareArtwork = (art) => {
             if (navigator.share) {
                 navigator.share({
                     title: art.title,
                     text: "Confira esta arte incrível!",
-                    url: art.image // Compartilha diretamente o link da imagem
+                    url: art.image
                 }).then(() => console.log("Compartilhado com sucesso"))
                     .catch((error) => console.log("Erro ao compartilhar", error));
             } else {
-                // Caso o navegador não suporte, copiamos o link para a área de transferência
                 navigator.clipboard.writeText(art.image).then(() => {
                     alert("Link copiado! Agora você pode colar e compartilhar.");
                 });
             }
         };
 
-        // 🔹 Carregar favoritos ao iniciar
         const loadFavorites = () => {
             favoriteArtworks.value = JSON.parse(localStorage.getItem('favorites')) || [];
         };
@@ -126,15 +134,12 @@ export default {
             modalVisible.value = false;
         };
 
-        // 🔹 Alternar entre adicionar/remover favoritos
         const toggleFavorite = (art) => {
             const index = favoriteArtworks.value.findIndex(fav => fav.id === art.id);
 
             if (index !== -1) {
-                // Se já está nos favoritos, remover
                 favoriteArtworks.value.splice(index, 1);
             } else {
-                // Se não está, adicionar
                 favoriteArtworks.value.push({
                     id: art.id,
                     title: art.title,
@@ -147,6 +152,15 @@ export default {
 
         const isFavorite = (id) => {
             return favoriteArtworks.value.some(fav => fav.id === id);
+        };
+
+        // Métodos para abrir e fechar o modal de contato
+        const openContactModal = () => {
+            showContactModal.value = true;
+        };
+
+        const closeContactModal = () => {
+            showContactModal.value = false;
         };
 
         return {
@@ -165,7 +179,10 @@ export default {
             nextPage,
             resetPagination,
             toggleFavorite,
-            isFavorite
+            isFavorite,
+            showContactModal,
+            openContactModal,
+            closeContactModal
         };
     }
 };
