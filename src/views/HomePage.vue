@@ -51,6 +51,39 @@
         <!-- Modal de Contato -->
         <ModalContato :show="showContactModal" @close="closeContactModal" />
     </div>
+
+    <section class="about">
+        <h2>Sobre</h2>
+        <div class="about-container">
+            <div class="profile">
+                <img src="../assets/images/karla.jpg" alt="Karla Albuquerque" class="profile-img">
+                <h3>Karla Albuquerque</h3>
+                <p>Artista responsável pelas ilustrações.</p>
+                <div class="social-icons">
+                    <a href="https://www.instagram.com/karla_albuquerque2000/" target="_blank">🎨 Instagram</a>
+                    <a href="https://instagram.com/karla_albuquerqueoficial17" target="_blank">📱 Instagram</a>
+                    <a href="" target="_blank">📘 Facebook</a>
+                    <a href="https://wa.me/+5581995450707" target="_blank">💬 WhatsApp</a>
+                </div>
+            </div>
+            <div class="profile">
+                <img src="../assets/images/robson.jpg" alt="Robson Albuquerque" class="profile-img">
+                <h3>Robson Albuquerque</h3>
+                <p>Desenvolvedor do site.</p>
+                <div class="social-icons">
+                    <a href="https://linkedin.com/in/robson-monteiro-de-albuquerque-8b3853230/" target="_blank">🔗
+                        LinkedIn</a>
+                    <a href="https://github.com/rma98" target="_blank">🐙 GitHub</a>
+                    <a href="https://instagram.com/robson.albuquerque_cm/" target="_blank">📱 Instagram</a>
+                    <a href="https://www.facebook.com/robson.albuquerque098/" target="_blank">📘 Facebook</a>
+                    <a href="https://wa.me/+5581971168633" target="_blank">💬 WhatsApp</a>
+                </div>
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+        <p>© {{ new Date().getFullYear() }} Galeria de Artes. Todos os direitos reservados.</p>
+    </footer>
 </template>
 
 <script>
@@ -364,8 +397,6 @@ select {
     }
 }
 
-
-
 .pagination-controls {
     display: flex;
     justify-content: center;
@@ -404,6 +435,68 @@ select {
     font-size: 30px;
     cursor: pointer;
     color: white;
+}
+
+/* Sobre */
+.about {
+    background: white;
+    padding: 30px;
+    margin-top: 20px;
+    border-radius: 12px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    
+    width: 100%;
+    text-align: center;
+}
+
+.about-container {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    flex-wrap: wrap;
+}
+
+.profile {
+    text-align: center;
+}
+
+.profile-img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 4px solid #ff6b6b;
+    transition: 0.3s;
+}
+
+.profile-img:hover {
+    transform: scale(1.1);
+}
+
+.social-icons {
+    margin-top: 10px;
+}
+
+.social-icons a {
+    text-decoration: none;
+    color: #ff6b6b;
+    margin: 0 10px;
+    font-size: 24px;
+    transition: 0.3s;
+}
+
+.social-icons a:hover {
+    color: #ff4a4a;
+}
+
+/* Rodapé */
+.footer {
+    margin-top: 30px;
+    background: #222;
+    color: white;
+    padding: 15px;
+    text-align: center;
+    width: 100%;
+    border-radius: 8px;
 }
 
 /***** Responsividade *****/
